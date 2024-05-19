@@ -1,0 +1,21 @@
+.dashboard {
+    padding: 20px;
+  }
+  
+  .car-list,
+  .showroom-list {
+    margin-bottom: 20px;
+  }
+  
+  .car-list ul,
+  .showroom-list ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .car-list li,
+  .showroom-list li {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+  }
+  
