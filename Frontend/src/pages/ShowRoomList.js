@@ -2,8 +2,11 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../Style/OwnerList.css";
 import Modal from "../Modals/Modal";
+import { useAuth } from "../Auth/AuthContext ";
 
 const ShowRoomList = () => {
+  const { isAdmin } = useAuth();
+
   const [showRoomList, setShowRoomList] = useState([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -66,7 +69,7 @@ const ShowRoomList = () => {
             <th>ID</th>
             <th>Showroom Name</th>
             <th>Address</th>
-            <th>Actions</th>
+            {isAdmin && <th>Actions</th>}{" "}
           </tr>
         </thead>
         <tbody>

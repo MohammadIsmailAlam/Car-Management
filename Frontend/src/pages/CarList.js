@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "../Style/OwnerList.css"; // Import the CSS file for styling
-import Modal from './../Modals/Modal';
+import "../Style/OwnerList.css";
+import Modal from "../Modals/Modal";
+import { useAuth } from "../Auth/AuthContext ";
 
 const CarList = () => {
+  const { isAdmin } = useAuth(); // Use isAdmin from the context
   const [carList, setCarList] = useState([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -68,7 +70,8 @@ const CarList = () => {
             <th>Price</th>
             <th>Model</th>
             <th>Reg No</th>
-            <th>Actions</th>
+            {isAdmin && <th>Actions</th>}{" "}
+            {/* Render the action column conditionally */}
           </tr>
         </thead>
         <tbody>
