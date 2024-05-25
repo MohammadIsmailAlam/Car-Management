@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../Style/OwnerList.css";
 import Modal from "../Modals/Modal";
+import { useForm } from "react-hook-form";
 
 const ShowRoomList = () => {
   const [showRoomList, setShowRoomList] = useState([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedShowRoom, setSelectedShowRoom] = useState(null);
+  const { register, handleSubmit } = useForm();
 
   useEffect(() => {
     axios
@@ -26,7 +28,8 @@ const ShowRoomList = () => {
     }
   };
 
-  const handleSave = async (updatedShowRoom) => {
+  const handleSave = async (data) => {
+    const updatedShowRoom = { ...selectedShowRoom, ...data };
     try {
       await axios.put(
         `http://localhost:8081/updateShowroom/${updatedShowRoom.id}`,
@@ -54,30 +57,34 @@ const ShowRoomList = () => {
   };
 
   return (
-    <div
-      className={`owner-list ${
-        isEditModalOpen || isDeleteModalOpen ? "blurred" : ""
-      }`}
-    >
-      <h3>Showroom List</h3>
-      <table>
+    <div className={`space-y-4 ${isEditModalOpen || isDeleteModalOpen}`}>
+      <h3 className="text-xl font-semibold">Showroom List</h3>
+      <table className="min-w-full bg-white border border-gray-300">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Showroom Name</th>
-            <th>Address</th>
-            <th>Actions</th>
+            <th className="py-2 px-4 border-b">ID</th>
+            <th className="py-2 px-4 border-b">Showroom Name</th>
+            <th className="py-2 px-4 border-b">Address</th>
+            <th className="py-2 px-4 border-b">Actions</th>
           </tr>
         </thead>
         <tbody>
           {showRoomList.map((showRoom) => (
             <tr key={showRoom.id}>
-              <td>{showRoom.id}</td>
-              <td>{showRoom.name}</td>
-              <td>{showRoom.address}</td>
-              <td>
-                <button onClick={() => handleEditClick(showRoom)}>Edit</button>
-                <button onClick={() => handleDeleteClick(showRoom)}>
+              <td className="py-2 px-4 border-b">{showRoom.id}</td>
+              <td className="py-2 px-4 border-b">{showRoom.name}</td>
+              <td className="py-2 px-4 border-b">{showRoom.address}</td>
+              <td className="py-2 px-4 border-b">
+                <button
+                  className="bg-blue-500 text-white px-2 py-1 rounded mr-2"
+                  onClick={() => handleEditClick(showRoom)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="bg-red-500 text-white px-2 py-1 rounded"
+                  onClick={() => handleDeleteClick(showRoom)}
+                >
                   Delete
                 </button>
               </td>
@@ -92,36 +99,29 @@ const ShowRoomList = () => {
         title="Edit Showroom"
       >
         {selectedShowRoom && (
-          <form>
-            <label>
+          <form onSubmit={handleSubmit(handleSave)} className="space-y-4">
+            <label className="block">
               Showroom Name:
               <input
                 type="text"
-                name="name"
-                value={selectedShowRoom.name}
-                onChange={(e) =>
-                  setSelectedShowRoom({
-                    ...selectedShowRoom,
-                    name: e.target.value,
-                  })
-                }
+                {...register("name")}
+                defaultValue={selectedShowRoom.name}
+                className="block w-full mt-1 border-gray-300 rounded"
               />
             </label>
-            <label>
+            <label className="block">
               Address:
               <input
                 type="text"
-                name="address"
-                value={selectedShowRoom.address}
-                onChange={(e) =>
-                  setSelectedShowRoom({
-                    ...selectedShowRoom,
-                    address: e.target.value,
-                  })
-                }
+                {...register("address")}
+                defaultValue={selectedShowRoom.address}
+                className="block w-full mt-1 border-gray-300 rounded"
               />
             </label>
-            <button type="button" onClick={() => handleSave(selectedShowRoom)}>
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+            >
               Save
             </button>
           </form>
@@ -136,10 +136,18 @@ const ShowRoomList = () => {
         <p>
           Are you sure you want to delete the showroom {selectedShowRoom?.name}?
         </p>
-        <button onClick={() => handleDelete(selectedShowRoom.id)}>
+        <button
+          className="bg-red-500 text-white px-4 py-2 rounded mt-4"
+          onClick={() => handleDelete(selectedShowRoom.id)}
+        >
           Delete
         </button>
-        <button onClick={() => setIsDeleteModalOpen(false)}>Cancel</button>
+        <button
+          className="bg-white-500 text-white px-4 py-2 rounded mt-4"
+          onClick={() => setIsDeleteModalOpen(false)}
+        >
+          Cancel
+        </button>
       </Modal>
     </div>
   );

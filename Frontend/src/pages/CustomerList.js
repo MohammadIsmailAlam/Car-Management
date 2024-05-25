@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios"; // Import Axios
 import "../Style/OwnerList.css"; // Import the CSS file for styling
-import Modal from './../Modals/Modal';
+import { useForm } from "react-hook-form"; // Import useForm from react-hook-form
+import Modal from "./../Modals/Modal";
 
 const CustomerList = () => {
   const [customers, setCustomers] = useState([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const { register, handleSubmit, setValue, reset } = useForm();
 
   useEffect(() => {
     axios
@@ -30,7 +32,8 @@ const CustomerList = () => {
     }
   };
 
-  const handleSave = async (updatedCustomer) => {
+  const handleSave = async (data) => {
+    const updatedCustomer = { ...selectedCustomer, ...data };
     try {
       await axios.put(
         `http://localhost:8081/updateCustomer/${updatedCustomer.id}`,
@@ -49,6 +52,7 @@ const CustomerList = () => {
 
   const handleEditClick = (customer) => {
     setSelectedCustomer(customer);
+    Object.keys(customer).forEach((key) => setValue(key, customer[key]));
     setIsEditModalOpen(true);
   };
 
@@ -58,36 +62,40 @@ const CustomerList = () => {
   };
 
   return (
-    <div
-      className={`owner-list ${
-        isEditModalOpen || isDeleteModalOpen ? "blurred" : ""
-      }`}
-    >
-      <h3>Customer List</h3>
-      <table>
+    <div className="space-y-4">
+      <h3 className="text-xl font-semibold">Customer List</h3>
+      <table className="min-w-full bg-white border border-gray-300">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Address</th>
-            <th>Mobile Number</th>
-            <th>Purchase Car ID</th>
-            <th>Actions</th>
+            <th className="py-2 px-4 border-b">ID</th>
+            <th className="py-2 px-4 border-b">Name</th>
+            <th className="py-2 px-4 border-b">Email</th>
+            <th className="py-2 px-4 border-b">Address</th>
+            <th className="py-2 px-4 border-b">Mobile Number</th>
+            <th className="py-2 px-4 border-b">Purchase Car ID</th>
+            <th className="py-2 px-4 border-b">Actions</th>
           </tr>
         </thead>
         <tbody>
           {customers.map((customer) => (
             <tr key={customer.id}>
-              <td>{customer.id}</td>
-              <td>{customer.name}</td>
-              <td>{customer.email}</td>
-              <td>{customer.address}</td>
-              <td>{customer.mobile_number}</td>
-              <td>{customer.purchase_car_id}</td>
+              <td className="py-2 px-4 border-b">{customer.id}</td>
+              <td className="py-2 px-4 border-b">{customer.name}</td>
+              <td className="py-2 px-4 border-b">{customer.email}</td>
+              <td className="py-2 px-4 border-b">{customer.address}</td>
+              <td className="py-2 px-4 border-b">{customer.mobile_number}</td>
+              <td className="py-2 px-4 border-b">{customer.purchase_car_id}</td>
               <td>
-                <button onClick={() => handleEditClick(customer)}>Edit</button>
-                <button onClick={() => handleDeleteClick(customer)}>
+                <button
+                  className="bg-blue-500 text-white px-2 py-1 rounded mr-2"
+                  onClick={() => handleEditClick(customer)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="bg-red-500 text-white px-2 py-1 rounded"
+                  onClick={() => handleDeleteClick(customer)}
+                >
                   Delete
                 </button>
               </td>
@@ -102,78 +110,51 @@ const CustomerList = () => {
         title="Edit Customer"
       >
         {selectedCustomer && (
-          <form>
-            <label>
+          <form onSubmit={handleSubmit(handleSave)} className="space-y-4">
+            <label className="block">
               Name:
               <input
                 type="text"
-                name="name"
-                value={selectedCustomer.name}
-                onChange={(e) =>
-                  setSelectedCustomer({
-                    ...selectedCustomer,
-                    name: e.target.value,
-                  })
-                }
+                {...register("name")}
+                className="block w-full mt-1 border-gray-300 rounded"
               />
             </label>
-            <label>
+            <label className="block">
               Email:
               <input
                 type="email"
-                name="email"
-                value={selectedCustomer.email}
-                onChange={(e) =>
-                  setSelectedCustomer({
-                    ...selectedCustomer,
-                    email: e.target.value,
-                  })
-                }
+                {...register("email")}
+                className="block w-full mt-1 border-gray-300 rounded"
               />
             </label>
-            <label>
+            <label className="block">
               Address:
               <input
                 type="text"
-                name="address"
-                value={selectedCustomer.address}
-                onChange={(e) =>
-                  setSelectedCustomer({
-                    ...selectedCustomer,
-                    address: e.target.value,
-                  })
-                }
+                {...register("address")}
+                className="block w-full mt-1 border-gray-300 rounded"
               />
             </label>
-            <label>
+            <label className="block">
               Mobile Number:
               <input
                 type="text"
-                name="mobile_number"
-                value={selectedCustomer.mobile_number}
-                onChange={(e) =>
-                  setSelectedCustomer({
-                    ...selectedCustomer,
-                    mobile_number: e.target.value,
-                  })
-                }
+                {...register("mobile_number")}
+                className="block w-full mt-1 border-gray-300 rounded"
               />
             </label>
-            <label>
+            <label className="block">
               Purchase Car ID:
               <input
                 type="text"
-                name="purchase_car_id"
-                value={selectedCustomer.purchase_car_id}
-                onChange={(e) =>
-                  setSelectedCustomer({
-                    ...selectedCustomer,
-                    purchase_car_id: e.target.value,
-                  })
-                }
+                {...register("purchase_car_id")}
+                className="block w-full mt-1 border-gray-300 rounded"
               />
             </label>
-            <button type="button" onClick={() => handleSave(selectedCustomer)}>
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+            >
               Save
             </button>
           </form>
@@ -188,10 +169,18 @@ const CustomerList = () => {
         <p>
           Are you sure you want to delete the customer {selectedCustomer?.name}?
         </p>
-        <button onClick={() => handleDelete(selectedCustomer.id)}>
+        <button
+          className="bg-red-500 text-white px-4 py-2 rounded mt-4"
+          onClick={() => handleDelete(selectedCustomer.id)}
+        >
           Delete
         </button>
-        <button onClick={() => setIsDeleteModalOpen(false)}>Cancel</button>
+        <button
+          className="bg-white-500 text-white px-4 py-2 rounded mt-4"
+          onClick={() => setIsDeleteModalOpen(false)}
+        >
+          Cancel
+        </button>
       </Modal>
     </div>
   );

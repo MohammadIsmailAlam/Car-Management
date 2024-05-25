@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import '../Style/login.css';
+import { useAuth } from '../context/AuthContext';
+import { useForm } from 'react-hook-form';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
+  const { login } = useAuth();
+  const { register, handleSubmit, formState: { errors } } = useForm();
   const navigate = useNavigate();
 
   const adminCredentials = {
@@ -16,11 +14,13 @@ const Login = () => {
     password: 'admin123'
   };
 
-  const handleLogin = async () => {
+  const onSubmit = async (data) => {
+    const { email, password, isAdmin } = data;
+
     if (isAdmin) {
       if (email === adminCredentials.email && password === adminCredentials.password) {
-        setIsLoggedIn(true);
-        navigate('/dashboard');
+        login({ email, isAdmin: true });
+        navigate('/admin');
       } else {
         alert('Invalid admin credentials!');
       }
@@ -32,7 +32,7 @@ const Login = () => {
         });
 
         if (response.status === 200) {
-          setIsLoggedIn(true);
+          login({ email, isAdmin: false });
           navigate('/dashboard');
         }
       } catch (error) {
@@ -42,36 +42,40 @@ const Login = () => {
   };
 
   return (
-    <div className="login">
-      <div className="login-form">
-        <h2>Login</h2>
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Admin Login:</label>
-          <input
-            type="checkbox"
-            checked={isAdmin}
-            onChange={(e) => setIsAdmin(e.target.checked)}
-          />
-        </div>
-        <button onClick={handleLogin}>Login</button>
-        <p>
-          Don't have an account? <Link to="/reg">Register here</Link>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-6">Login</h2>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div>
+            <label className="block text-gray-700">Email:</label>
+            <input
+              type="email"
+              {...register('email', { required: true })}
+              className="w-full p-2 border border-gray-300 rounded mt-1"
+            />
+            {errors.email && <span className="text-red-500 text-sm">This field is required</span>}
+          </div>
+          <div>
+            <label className="block text-gray-700">Password:</label>
+            <input
+              type="password"
+              {...register('password', { required: true })}
+              className="w-full p-2 border border-gray-300 rounded mt-1"
+            />
+            {errors.password && <span className="text-red-500 text-sm">This field is required</span>}
+          </div>
+          <div>
+            <label className="block text-gray-700">Admin Login:</label>
+            <input
+              type="checkbox"
+              {...register('isAdmin')}
+              className="mt-1"
+            />
+          </div>
+          <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded mt-4">Login</button>
+        </form>
+        <p className="mt-4 text-center">
+          Don't have an account? <Link to="/reg" className="text-blue-500">Register here</Link>
         </p>
       </div>
     </div>

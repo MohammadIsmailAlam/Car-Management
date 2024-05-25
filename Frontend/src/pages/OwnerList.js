@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../Style/OwnerList.css";
 import Modal from "../Modals/Modal";
+import { useForm } from "react-hook-form";
 
 const OwnerList = () => {
   const [owners, setOwners] = useState([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedOwner, setSelectedOwner] = useState(null);
+  const { register, handleSubmit, setValue, reset } = useForm();
 
   useEffect(() => {
     axios
@@ -26,7 +28,8 @@ const OwnerList = () => {
     }
   };
 
-  const handleSave = async (updatedOwner) => {
+  const handleSave = async (data) => {
+    const updatedOwner = { ...selectedOwner, ...data };
     try {
       await axios.put(
         `http://localhost:8081/updateOwner/${updatedOwner.id}`,
@@ -45,6 +48,7 @@ const OwnerList = () => {
 
   const handleEditClick = (owner) => {
     setSelectedOwner(owner);
+    Object.keys(owner).forEach((key) => setValue(key, owner[key]));
     setIsEditModalOpen(true);
   };
 
@@ -54,36 +58,42 @@ const OwnerList = () => {
   };
 
   return (
-    <div
-      className={`owner-list ${
-        isEditModalOpen || isDeleteModalOpen ? "blurred" : ""
-      }`}
-    >
-      <h3>Owner List</h3>
-      <table>
+    <div className={`space-y-4 ${isEditModalOpen || isDeleteModalOpen}`}>
+      <h3 className="text-xl font-semibold">Owner List</h3>
+      <table className="min-w-full bg-white border border-gray-300">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Address</th>
-            <th>Mobile Number</th>
-            <th>Showroom ID</th>
-            <th>Car List ID</th>
-            <th>Actions</th>
+            <th className="py-2 px-4 border-b">ID</th>
+            <th className="py-2 px-4 border-b">Name</th>
+            <th className="py-2 px-4 border-b">Address</th>
+            <th className="py-2 px-4 border-b">Mobile Number</th>
+            <th className="py-2 px-4 border-b">Showroom ID</th>
+            <th className="py-2 px-4 border-b">Car List ID</th>
+            <th className="py-2 px-4 border-b">Actions</th>
           </tr>
         </thead>
         <tbody>
           {owners.map((owner) => (
             <tr key={owner.id}>
-              <td>{owner.id}</td>
-              <td>{owner.name}</td>
-              <td>{owner.address}</td>
-              <td>{owner.mobile_number}</td>
-              <td>{owner.showroom_id}</td>
-              <td>{owner.car_list_id}</td>
-              <td>
-                <button onClick={() => handleEditClick(owner)}>Edit</button>
-                <button onClick={() => handleDeleteClick(owner)}>Delete</button>
+              <td className="py-2 px-4 border-b">{owner.id}</td>
+              <td className="py-2 px-4 border-b">{owner.name}</td>
+              <td className="py-2 px-4 border-b">{owner.address}</td>
+              <td className="py-2 px-4 border-b">{owner.mobile_number}</td>
+              <td className="py-2 px-4 border-b">{owner.showroom_id}</td>
+              <td className="py-2 px-4 border-b">{owner.car_list_id}</td>
+              <td className="py-2 px-4 border-b">
+                <button
+                  className="bg-blue-500 text-white px-2 py-1 rounded mr-2"
+                  onClick={() => handleEditClick(owner)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="bg-red-500 text-white px-2 py-1 rounded"
+                  onClick={() => handleDeleteClick(owner)}
+                >
+                  Delete
+                </button>
               </td>
             </tr>
           ))}
@@ -96,75 +106,51 @@ const OwnerList = () => {
         title="Edit Owner"
       >
         {selectedOwner && (
-          <form>
-            <label>
+          <form onSubmit={handleSubmit(handleSave)} className="space-y-4">
+            <label className="block">
               Name:
               <input
                 type="text"
-                name="name"
-                value={selectedOwner.name}
-                onChange={(e) =>
-                  setSelectedOwner({ ...selectedOwner, name: e.target.value })
-                }
+                {...register("name")}
+                className="block w-full mt-1 border-gray-300 rounded"
               />
             </label>
-            <label>
+            <label className="block">
               Address:
               <input
                 type="text"
-                name="address"
-                value={selectedOwner.address}
-                onChange={(e) =>
-                  setSelectedOwner({
-                    ...selectedOwner,
-                    address: e.target.value,
-                  })
-                }
+                {...register("address")}
+                className="block w-full mt-1 border-gray-300 rounded"
               />
             </label>
-            <label>
+            <label className="block">
               Mobile Number:
               <input
                 type="text"
-                name="mobile_number"
-                value={selectedOwner.mobile_number}
-                onChange={(e) =>
-                  setSelectedOwner({
-                    ...selectedOwner,
-                    mobile_number: e.target.value,
-                  })
-                }
+                {...register("mobile_number")}
+                className="block w-full mt-1 border-gray-300 rounded"
               />
             </label>
-            <label>
+            <label className="block">
               Showroom ID:
               <input
                 type="text"
-                name="showroom_id"
-                value={selectedOwner.showroom_id}
-                onChange={(e) =>
-                  setSelectedOwner({
-                    ...selectedOwner,
-                    showroom_id: e.target.value,
-                  })
-                }
+                {...register("showroom_id")}
+                className="block w-full mt-1 border-gray-300 rounded"
               />
             </label>
-            <label>
+            <label className="block">
               Car List ID:
               <input
                 type="text"
-                name="car_list_id"
-                value={selectedOwner.car_list_id}
-                onChange={(e) =>
-                  setSelectedOwner({
-                    ...selectedOwner,
-                    car_list_id: e.target.value,
-                  })
-                }
+                {...register("car_list_id")}
+                className="block w-full mt-1 border-gray-300 rounded"
               />
             </label>
-            <button type="button" onClick={() => handleSave(selectedOwner)}>
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+            >
               Save
             </button>
           </form>
@@ -177,8 +163,18 @@ const OwnerList = () => {
         title="Confirm Delete"
       >
         <p>Are you sure you want to delete the owner {selectedOwner?.name}?</p>
-        <button onClick={() => handleDelete(selectedOwner.id)}>Delete</button>
-        <button onClick={() => setIsDeleteModalOpen(false)}>Cancel</button>
+        <button
+          className="bg-red-500 text-white px-4 py-2 rounded mt-4"
+          onClick={() => handleDelete(selectedOwner.id)}
+        >
+          Delete
+        </button>
+        <button
+          className="bg-white-500 text-white px-4 py-2 rounded mt-4"
+          onClick={() => setIsDeleteModalOpen(false)}
+        >
+          Cancel
+        </button>
       </Modal>
     </div>
   );
